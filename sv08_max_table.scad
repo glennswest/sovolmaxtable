@@ -100,6 +100,32 @@ module sv08_max_table() {
         cross_rail_y();
     translate([table_width - rail_size, post_size, top_rail_height])
         cross_rail_y();
+
+    // Diagonal cross members for additional stability at mid-level
+    // These provide X-bracing between corner posts
+    inner_width = table_width - 2 * post_size;
+    inner_depth = table_depth - 2 * post_size;
+    diagonal_length = sqrt(pow(inner_width, 2) + pow(inner_depth, 2));
+    diagonal_angle = atan2(inner_depth, inner_width);
+
+    // Diagonal brace 1: front-left to back-right
+    translate([post_size, post_size, mid_rail_height])
+        rotate([0, 0, diagonal_angle])
+        cube([diagonal_length, rail_size/2, rail_size/2]);
+
+    // Diagonal brace 2: front-right to back-left
+    translate([table_width - post_size, post_size, mid_rail_height])
+        rotate([0, 0, 180 - diagonal_angle])
+        cube([diagonal_length, rail_size/2, rail_size/2]);
+
+    // Center support beam running lengthwise to support table top
+    center_beam_height = top_rail_height + rail_size/2;
+    translate([post_size, table_depth/2 - rail_size/4, center_beam_height])
+        cube([inner_width, rail_size/2, rail_size/2]);
+
+    // Center support beam running widthwise to support table top
+    translate([table_width/2 - rail_size/4, post_size, center_beam_height])
+        cube([rail_size/2, inner_depth, rail_size/2]);
 }
 
 // Display information

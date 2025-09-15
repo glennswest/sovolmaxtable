@@ -146,19 +146,60 @@ module short_rail() {
 //==============================================================================
 
 module diagonal_brace() {
-    brace_length = sqrt(pow(table_width - 2 * leg_size, 2) + pow(table_depth - 2 * leg_size, 2));
+    // Calculate diagonal distance between inner corners of leg posts
+    inner_width = table_width - 2 * leg_size;
+    inner_depth = table_depth - 2 * leg_size;
+    brace_length = sqrt(pow(inner_width, 2) + pow(inner_depth, 2));
 
     difference() {
         cube([brace_length, 40, 20]);
 
-        // Angled cuts at ends for connection
-        translate([0, 20, 10])
-            rotate([0, 45, 0])
-            cube([20, 40, 20], center=true);
+        // Bolt holes at ends for connection to corner brackets
+        translate([10, 20, 10])
+            rotate([0, 90, 0])
+            cylinder(d=bolt_hole_diameter, h=20);
 
-        translate([brace_length, 20, 10])
-            rotate([0, -45, 0])
-            cube([20, 40, 20], center=true);
+        translate([brace_length - 30, 20, 10])
+            rotate([0, 90, 0])
+            cylinder(d=bolt_hole_diameter, h=20);
+
+        // Counterbores for bolt heads
+        translate([0, 20, 10])
+            rotate([0, 90, 0])
+            cylinder(d=counterbore_diameter, h=counterbore_depth);
+
+        translate([brace_length - counterbore_depth, 20, 10])
+            rotate([0, 90, 0])
+            cylinder(d=counterbore_diameter, h=counterbore_depth);
+    }
+}
+
+module corner_bracket() {
+    // L-shaped bracket to connect diagonal braces to existing rails
+    difference() {
+        union() {
+            cube([60, 40, 20]);  // Horizontal arm
+            cube([40, 60, 20]);  // Vertical arm
+        }
+
+        // Bolt holes for diagonal brace connection
+        translate([50, 20, 10])
+            rotate([0, 90, 0])
+            cylinder(d=bolt_hole_diameter, h=20);
+
+        // Bolt holes for rail connection
+        translate([20, 50, 10])
+            rotate([90, 0, 0])
+            cylinder(d=bolt_hole_diameter, h=20);
+
+        // Counterbores
+        translate([60 - counterbore_depth, 20, 10])
+            rotate([0, 90, 0])
+            cylinder(d=counterbore_diameter, h=counterbore_depth);
+
+        translate([20, 60 - counterbore_depth, 10])
+            rotate([90, 0, 0])
+            cylinder(d=counterbore_diameter, h=counterbore_depth);
     }
 }
 
@@ -251,6 +292,33 @@ module assembled_table() {
     translate([table_width - rail_width, leg_size, top_rail_height])
         rotate([0, 0, 90]) short_rail();
 
+    // Cross members (diagonal braces) at mid-level for additional stability
+    mid_level_height = 250;
+
+    // Calculate inner dimensions and diagonal angle
+    inner_width = table_width - 2 * leg_size;
+    inner_depth = table_depth - 2 * leg_size;
+    diagonal_angle = atan2(inner_depth, inner_width);
+
+    // Diagonal brace 1: front-left to back-right
+    translate([leg_size, leg_size, mid_level_height])
+        rotate([0, 0, diagonal_angle])
+        diagonal_brace();
+
+    // Diagonal brace 2: front-right to back-left
+    translate([table_width - leg_size, leg_size, mid_level_height])
+        rotate([0, 0, 180 - diagonal_angle])
+        diagonal_brace();
+
+    // Corner brackets to connect diagonal braces to existing rails
+    translate([leg_size, leg_size, mid_level_height]) corner_bracket();
+    translate([table_width - leg_size - 40, leg_size, mid_level_height])
+        rotate([0, 0, 90]) corner_bracket();
+    translate([table_width - leg_size - 40, table_depth - leg_size - 40, mid_level_height])
+        rotate([0, 0, 180]) corner_bracket();
+    translate([leg_size, table_depth - leg_size - 40, mid_level_height])
+        rotate([0, 0, 270]) corner_bracket();
+
     // Table top segments (150x401x25mm each)
     translate([0, 0, table_height - top_thickness]) {
         // Row 1
@@ -286,6 +354,18 @@ module print_layout_rails() {
     translate([table_width - 2 * leg_size + 20, 3*(table_depth - 2 * leg_size + 10), 0]) short_rail();
 }
 
+module print_layout_cross_members() {
+    // Diagonal braces
+    diagonal_brace();
+    translate([0, 50, 0]) diagonal_brace();
+
+    // Corner brackets
+    translate([0, 100, 0]) corner_bracket();
+    translate([70, 100, 0]) corner_bracket();
+    translate([140, 100, 0]) corner_bracket();
+    translate([210, 100, 0]) corner_bracket();
+}
+
 module print_layout_top_segments() {
     // Main 150x401 segments
     for (i = [0:4]) {
@@ -311,6 +391,8 @@ if (render_legs) {
     print_layout_legs();
 } else if (render_rails) {
     print_layout_rails();
+} else if (render_cross_members) {
+    print_layout_cross_members();
 } else if (render_top_segments) {
     print_layout_top_segments();
 } else if (render_assembly) {
@@ -329,10 +411,13 @@ echo("=== Print Settings ===");
 echo("Set render flags at top of file:");
 echo("render_legs = true; - for leg components");
 echo("render_rails = true; - for rail components");
+echo("render_cross_members = true; - for diagonal braces and corner brackets");
 echo("render_top_segments = true; - for table top segments");
 echo("render_assembly = true; - for full assembly view");
 echo("=== Assembly Requirements ===");
 echo("Hardware needed:");
 echo("- M8 bolts and nuts for rail connections");
+echo("- M8 bolts and nuts for cross member connections");
 echo("- Wood glue for alignment pins");
 echo("- 20 alignment pins for table top segments");
+echo("- 2 diagonal braces and 4 corner brackets for additional stability");
