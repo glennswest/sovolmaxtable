@@ -6,6 +6,12 @@ A modular, printable table designed specifically for the Sovol SV08 Max 3D print
 
 The SV08 Max is a large-format 3D printer with a 500×500×500mm build volume. This table design accommodates the estimated printer footprint of 700×700×800mm with adequate clearance while positioning the print bed at comfortable desk height (~30 inches from floor).
 
+### Completed Table Render
+
+![Complete SV08 Max Table](renders/complete_table.png)
+
+*The fully assembled modular table showing the complete structure with legs, rails, and table top segments*
+
 ### Table Specifications
 
 - **Dimensions**: 802mm × 802mm × 463mm
@@ -26,6 +32,22 @@ The SV08 Max is a large-format 3D printer with a 500×500×500mm build volume. T
 | Table Top Segments | 5 | 150 × 802 × 25 | Main table surface |
 | Final Segment | 1 | 52 × 802 × 25 | Completes table width |
 | Alignment Pins | 20 | 7.8 ⌀ × 15 | Table top connections |
+
+### Component Renders
+
+#### Structural Components
+
+| **Leg** | **Long Rail** | **Short Rail** |
+|---------|---------------|----------------|
+| ![Leg Component](renders/leg.png) | ![Long Rail Component](renders/long_rail.png) | ![Short Rail Component](renders/short_rail.png) |
+| 4×4 inch corner post with mounting holes | X-direction cross member with bolt holes | Y-direction cross member with bolt holes |
+
+#### Table Top Components
+
+| **Table Top Segment** | **Final Segment** | **Alignment Pin** |
+|-----------------------|-------------------|-------------------|
+| ![Table Top Segment](renders/table_top_segment.png) | ![Final Segment](renders/table_top_final_segment.png) | ![Alignment Pin](renders/alignment_pin.png) |
+| Standard 150mm wide segment | 52mm wide final segment | 7.8mm diameter connection pin |
 
 ### Rail Configuration
 
@@ -48,7 +70,16 @@ sovolmaxtable/
 ├── alignment_pin.scad          # Connection pins
 ├── compile_stls.sh             # Bash compilation script
 ├── Makefile                    # Make-based compilation
-└── sv08_max_table_printable.scad # Original complete design
+├── sv08_max_table_printable.scad # Original complete design
+├── renders/                     # Generated component renders
+│   ├── complete_table.png       # Assembled table view
+│   ├── leg.png                  # Leg component
+│   ├── long_rail.png           # Long rail component
+│   ├── short_rail.png          # Short rail component
+│   ├── table_top_segment.png   # Table segment
+│   ├── table_top_final_segment.png # Final segment
+│   └── alignment_pin.png       # Alignment pin
+└── stl_files/                  # Generated STL files
 ```
 
 ## Building the STL Files
